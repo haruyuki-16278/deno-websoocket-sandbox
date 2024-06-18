@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Deno WebSocket</title>
+    <script type="module">
+      const wsUri = "ws://localhost:8000/";
+      const output = document.querySelector("#output");
+      const websocket = new WebSocket(wsUri);
+      let pingInterval;
+    
+      function writeToScreen(message) {
+        output.insertAdjacentHTML("afterbegin", `<p>${message}</p>`);
+      }
+      function sendMessage(message) {
+        writeToScreen(`SENT: ${message}`);
+        websocket.send(message);
+      }
+  
+      websocket.onopen = () => {
+        writeToScreen("CONNECTED");
+        sendMessage("ping");
+        pingInterval = setInterval(() => {
+          sendMessage("ping");
+        }, 5000);
+      };
+      websocket.onclose = (e) => {
+        writeToScreen("DISCONNECTED");
+        clearInterval(pingInterval);
+      };
+  
+      websocket.onmessage = (e) => {
+        writeToScreen(`RECEIVED: ${e.data}`);
+      };
+  
+      websocket.onerror = (e) => {
+          writeToScreen(`ERROR: ${e.data}`);
+        };
+    </script>
+  </head>
+  <body>
+    <h1>WebSocket test</h1>
+    <div id="output"></div>
+  </body>
+</html>
